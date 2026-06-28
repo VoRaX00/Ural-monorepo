@@ -1,14 +1,14 @@
 server:
-  port: 10906
+  port: ${SERVER_PORT:10906}
 
 spring:
   application:
     name: ural-contracts
     version: @project.version@
   datasource:
-    url: jdbc:postgresql://localhost:10900/ural
-    username: postgres
-    password: postgres
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:10900/ural}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -30,11 +30,11 @@ spring:
     default-schema: ural_contracts
 
   kafka:
-    bootstrap-servers: localhost:11009
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:11009}
 
 contract-integrations:
-  cars-url: http://localhost:10904/api/cars
-  cargo-url: http://localhost:10905/api/cargo
+  cars-url: ${CAR_URL:http://localhost:10904/api/cars}
+  cargo-url: ${CARGO_URL:http://localhost:10905/api/cargo}
 
 graphhopper:
   base-url: ${GRAPHHOPPER_BASE_URL:https://graphhopper.com/api/1}

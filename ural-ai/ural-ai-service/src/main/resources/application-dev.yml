@@ -32,11 +32,11 @@ logging:
 
 integrations:
   files:
-    base-url: http://localhost:10907
+    base-url: ${FILES_SERVICE_BASE_URL:http://localhost:10907}
   cargo:
-    base-url: http://localhost:10905
+    base-url: ${CARGO_SERVICE_BASE_URL:http://localhost:10905}
   cars:
-    base-url: http://localhost:10904
+    base-url: ${CARS_SERVICE_BASE_URL:http://localhost:10904}
   gemini:
     base-url: ${GEMINI_BASE_URL:https://generativelanguage.googleapis.com}
     api-key: ${GEMINI_API_KEY:}

@@ -91,6 +91,8 @@ http://localhost:3000
 
 Это основной поддерживаемый `docker compose` сценарий для монорепозитория.
 
+P.s. для полноценной работы приложения нужны API KEYS для Gemini и GraphHopper.
+
 ## Docker-Сборка
 
 Корневой `Dockerfile` собирает сервисы из исходников через Maven:
@@ -183,21 +185,46 @@ docker compose logs -f
 docker compose logs -f ural-auth
 ```
 
-## Что Проверить После Старта
+Экран с формой логина
+![img.png](img.png)
 
-- `http://localhost:10902/actuator/health` возвращает health aggregator
-- `http://localhost:10901/actuator/health` возвращает health auth
-- `http://localhost:10903/actuator/health` возвращает health users
-- `http://localhost:10904/actuator/health` возвращает health cars
-- `http://localhost:10905/actuator/health` возвращает health cargo
-- `http://localhost:10906/actuator/health` возвращает health contracts
-- `http://localhost:10907/actuator/health` возвращает health files
-- `http://localhost:10908/actuator/health` возвращает health gai
-- `http://localhost:10909/actuator/health` возвращает health notifications
-- `http://localhost:10910/actuator/health` возвращает health ai
-- `http://localhost:3000` открывает frontend
-- `http://localhost:9001` открывает MinIO Console
-- `http://localhost:8025` открывает Mailpit UI
+Экран регистрации
+![img_1.png](img_1.png)
 
+Экран грузов
+![img_2.png](img_2.png)
+
+Экран транспортов
+![img_4.png](img_4.png)
+
+Экран контрактов
+![img_3.png](img_3.png)
+
+Экран уведомлений
+![img_5.png](img_5.png)
+
+Экран профиля
+![img_6.png](img_6.png)
+
+Экран созданного транспорта
+![img_7.png](img_7.png)
+
+Экран транспортов с существующим транспортом
+![img_8.png](img_8.png)
+
+Экран созданного груза
+![img_9.png](img_9.png)
+
+Экран с грузами
+![img_10.png](img_10.png)
+
+Экран с созданным контрактом
+![img_11.png](img_11.png)
+
+Экран с уведомлением
+![img_12.png](img_12.png)
+
+Страница контракта
+![img_13.png](img_13.png)
 
 Ссылка на оригинальный репозиторий: https://github.com/VoRaX00/Ural-monorepo

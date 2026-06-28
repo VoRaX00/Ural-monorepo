@@ -10,6 +10,28 @@ export interface FileDto {
   url: string;
 }
 
+function normalizeFileUrl(url: string): string {
+  if (typeof window === "undefined") return url;
+
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname !== "ural-minio") {
+      return url;
+    }
+
+    return `${window.location.origin}/minio${parsed.pathname}${parsed.search}${parsed.hash}`;
+  } catch {
+    return url;
+  }
+}
+
+function normalizeFile(file: FileDto): FileDto {
+  return {
+    ...file,
+    url: normalizeFileUrl(file.url),
+  };
+}
+
 export async function uploadFiles(args: {
   files: File[];
   types: FileType[];
@@ -22,7 +44,7 @@ export async function uploadFiles(args: {
   const res = await api.post<FileDto[]>("/files", form, {
     headers: { "Content-Type": "multipart/form-data" },
   });
-  return res.data;
+  return res.data.map(normalizeFile);
 }
 
 export async function getFiles(ids: number[]): Promise<FileDto[]> {
@@ -30,7 +52,7 @@ export async function getFiles(ids: number[]): Promise<FileDto[]> {
   const unique = Array.from(new Set(ids));
   const query = unique.map((id) => `ids=${encodeURIComponent(id)}`).join("&");
   const res = await api.get<FileDto[]>(`/files?${query}`);
-  return res.data;
+  return res.data.map(normalizeFile);
 }
 
 export async function uploadAvatar(args: {

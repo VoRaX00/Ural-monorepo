@@ -9,7 +9,7 @@ ARG SERVICE_MODULE
 
 COPY . .
 
-RUN --mount=type=cache,target=/root/.m2 \
+RUN --mount=type=cache,id=ural-maven-repo-v2,target=/root/.m2,sharing=locked \
     mvn -B -pl "${PROJECT_DIR}/${SERVICE_MODULE}" -am package -DskipTests \
     -Dmaven.wagon.http.retryHandler.count=5 \
     -Dural-common-starter.version=1.18-SNAPSHOT \

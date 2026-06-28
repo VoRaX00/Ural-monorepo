@@ -18,6 +18,7 @@ import {
   toCargoOptions,
 } from "../../config/cargoOptions";
 import type { CarDto, CreateCarPayload } from "../../types/domain";
+import { extractRcFiles } from "../../utils/upload";
 import { normalizeAddress } from "../cargo/cargoForm";
 
 export const CarEditPage = () => {
@@ -269,8 +270,7 @@ export const CarEditPage = () => {
                 listType="picture"
                 beforeUpload={() => false}
                 onChange={(info) => {
-                  const next = info.fileList.map((x) => x.originFileObj).filter(Boolean) as RcFile[];
-                  setFiles(next);
+                  setFiles(extractRcFiles(info.fileList));
                 }}
               >
                 <Button>Выбрать файлы</Button>
