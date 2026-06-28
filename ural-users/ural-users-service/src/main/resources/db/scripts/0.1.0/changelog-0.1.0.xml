@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+            http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="create schema" author="kerzhakov">
+        <sql>
+            CREATE SCHEMA IF NOT EXISTS ural_users
+        </sql>
+    </changeSet>
+
+    <changeSet id="create table users" author="kerzhakov">
+        <createTable tableName="users">
+            <column name="uuid" type="uuid">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="email" type="TEXT">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="first_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="patronymic" type="varchar(255)"/>
+            <column name="phone_number" type="text">
+                <constraints unique="true" nullable="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+    
+    <changeSet id="create avatar table" author="kerzhakov">
+        <createTable tableName="avatars">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="photo_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="photo_thumbnail_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="crop_x" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="crop_y" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="crop_size" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_uuid" type="uuid">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+        
+        <addForeignKeyConstraint baseTableName="avatars"
+                                 baseColumnNames="user_uuid"
+                                 constraintName="fk_avatars_users_uuid"
+                                 referencedTableName="users"
+                                 referencedColumnNames="uuid"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="create user rating summary table" author="codex">
+        <createTable tableName="user_rating_summary">
+            <column name="user_uuid" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="average_rating" type="decimal" defaultValueNumeric="5.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ratings_count" type="BIGINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamptz" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="user_rating_summary"
+                                 baseColumnNames="user_uuid"
+                                 constraintName="fk_user_rating_summary_users_uuid"
+                                 referencedTableName="users"
+                                 referencedColumnNames="uuid"
+                                 onDelete="CASCADE"/>
+
+        <sql>
+            INSERT INTO user_rating_summary (user_uuid, average_rating, ratings_count, updated_at)
+            SELECT uuid, 5.00, 0, CURRENT_TIMESTAMP
+            FROM users
+            ON CONFLICT (user_uuid) DO NOTHING
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

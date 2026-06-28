@@ -1,0 +1,42 @@
+server:
+  port: 10902
+
+spring:
+  application:
+    name: ural-aggregator
+    version: @project.version@
+
+security:
+  jwt:
+    public-key: ${PUBLIC_KEY}
+
+proxy:
+  ai:
+    url: http://localhost:10910/api
+  auth:
+    url: http://localhost:10901/api
+  users:
+    url: http://localhost:10903/api
+  cars:
+    url: http://localhost:10904/api
+  cargo:
+    url: http://localhost:10905/api
+  contracts:
+    url: http://localhost:10906/api
+  files:
+    url: http://localhost:10907/api
+  notifications:
+    url: http://localhost:10909/api
+
+front:
+  url: http://localhost:3000
+
+logging:
+  level:
+    root: info
+    org:
+      springframework: INFO
+      hibernate: INFO
+      apache:
+        tomcat:
+          util: WARN

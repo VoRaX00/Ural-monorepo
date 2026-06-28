@@ -1,0 +1,62 @@
+spring:
+  application:
+    name: ural-cars
+  datasource:
+    driver-class-name: org.postgresql.Driver
+  kafka:
+    bootstrap-servers: localhost:11009
+    listener:
+      auto-startup: false
+    consumer:
+      group-id: ural-cars-test
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: ru.ural.cars.events
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        max.block.ms: 1000
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        generate_statistics: false
+        show_sql: true
+        check_nullability: true
+        hbm2ddl:
+          auto: validate
+        default_schema: ural_cars
+
+  liquibase:
+    enabled: true
+    liquibase-schema: public
+    database-change-log-table: ural_cars_log
+    database-change-log-lock-table: ural_cars_lock
+    change-log: classpath:db/changelog-master.xml
+    default-schema: ural_cars
+
+logging:
+  level:
+    root: info
+    org:
+      springframework: INFO
+      hibernate: INFO
+      apache:
+        tomcat:
+          util: WARN
+
+integrations:
+  files:
+    base-url: http://localhost:10905
+  gemini:
+    base-url: https://generativelanguage.googleapis.com
+    api-key:
+    model: gemini-2.5-flash
+
+app:
+  kafka:
+    car-photo-analysis:
+      topic: ural-cars.photo-analysis.requested

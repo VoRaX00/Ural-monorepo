@@ -1,0 +1,50 @@
+server:
+  port: 10910
+
+spring:
+  application:
+    name: ural-ai-service
+    version: @project.version@
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:11009}
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP_ID:ural-ai-service}
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: ru.ural.ai.events
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        max.block.ms: ${KAFKA_PRODUCER_MAX_BLOCK_MS:1000}
+
+logging:
+  level:
+    root: info
+    org:
+      springframework: INFO
+      hibernate: INFO
+      apache:
+        tomcat:
+          util: WARN
+
+integrations:
+  files:
+    base-url: http://localhost:10907
+  cargo:
+    base-url: http://localhost:10905
+  cars:
+    base-url: http://localhost:10904
+  gemini:
+    base-url: ${GEMINI_BASE_URL:https://generativelanguage.googleapis.com}
+    api-key: ${GEMINI_API_KEY:}
+    model: ${GEMINI_MODEL:gemini-2.5-flash}
+
+app:
+  kafka:
+    ai:
+      car-photo-analysis:
+        request-topic: ${CAR_PHOTO_ANALYSIS_REQUEST_TOPIC:ural-ai.car-photo-analysis.requested}
+        result-topic: ${CAR_PHOTO_ANALYSIS_RESULT_TOPIC:ural-ai.car-photo-analysis.completed}

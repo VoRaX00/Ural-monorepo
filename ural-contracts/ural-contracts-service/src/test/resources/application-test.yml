@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: ural-contracts
+  datasource:
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        generate_statistics: false
+        show_sql: true
+        check_nullability: true
+        hbm2ddl:
+          auto: validate
+        default_schema: ural_contracts
+
+  liquibase:
+    enabled: true
+    liquibase-schema: public
+    database-change-log-table: ural_contracts_log
+    database-change-log-lock-table: ural_contracts_lock
+    change-log: classpath:db/changelog-master.xml
+    default-schema: ural_contracts
+
+  kafka:
+    bootstrap-servers: localhost:11009
+
+contract-integrations:
+  cars-url: http://localhost:10904
+  cargo-url: http://localhost:10903
+
+kafka:
+  notification-contract-topic:
+    name: ural-contract-topic
+    partitions: 1
+
+logging:
+  level:
+    root: info
+    org:
+      springframework: INFO
+      hibernate: INFO
+      apache:
+        tomcat:
+          util: WARN

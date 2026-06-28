@@ -1,0 +1,40 @@
+server:
+  port: 10905
+
+spring:
+  application:
+    name: ural-cargo
+    version: @project.version@
+  datasource:
+    url: jdbc:postgresql://localhost:10900/ural
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        generate_statistics: false
+        show_sql: true
+        check_nullability: true
+        hbm2ddl:
+          auto: validate
+        default_schema: ural_cargo
+
+  liquibase:
+    enabled: true
+    liquibase-schema: public
+    database-change-log-table: ural_cargo_log
+    database-change-log-lock-table: ural_cargo_lock
+    change-log: classpath:db/changelog-master.xml
+    default-schema: ural_cargo
+
+logging:
+  level:
+    root: info
+    org:
+      springframework: INFO
+      hibernate: INFO
+      apache:
+        tomcat:
+          util: WARN

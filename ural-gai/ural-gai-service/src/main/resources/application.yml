@@ -1,0 +1,24 @@
+server:
+  port: ${SERVER_PORT}
+
+spring:
+  application:
+    name: ural-gai
+    version: @project.version@
+
+mocks:
+  wanted:
+    good-vins: ${WANTED_GOOD_VINS}
+  accident:
+    good-vins: ${ACCIDENT_GOOD_VINS}
+  inspection:
+    good-vins: ${INSPECTION_GOOD_VINS}
+
+logging:
+  level:
+    root: info
+    org:
+      springframework: INFO
+      apache:
+        tomcat:
+          util: WARN

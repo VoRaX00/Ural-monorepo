@@ -1,0 +1,45 @@
+server:
+  port: ${SERVER_PORT}
+
+spring:
+  application:
+    name: ural-auth
+    version: @project.version@
+  datasource:
+    url: ${DB_URL}/${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASS}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        generate_statistics: false
+        show_sql: ${SHOW_SQL}
+        check_nullability: true
+        hbm2ddl:
+          auto: validate
+
+  liquibase:
+    enabled: true
+    liquibase-schema: public
+    database-change-log-table: database_changelog
+    database-change-log-lock-table: database_change_log_lock
+    change-log: classpath:db/changelog-master.xml
+
+security:
+  refresh-token-expired-on-seconds: ${REFRESH_TOKEN_EXPIRED_ON_SECONDS}
+  access-token-expired-on-seconds: ${ACCESS_TOKEN_EXPIRED_ON_SECONDS}
+  jwt:
+    public-key: ${PUBLIC_KEY}
+    private-key: ${PRIVATE_KEY}
+
+logging:
+  level:
+    root: info
+    org:
+      springframework: INFO
+      hibernate: INFO
+      apache:
+        tomcat:
+          util: WARN

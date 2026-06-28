@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+            http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="create schema" author="kerzhakov">
+        <sql>
+            CREATE SCHEMA IF NOT EXISTS ural_cars
+        </sql>
+    </changeSet>
+
+    <changeSet id="create table cars" author="kerzhakov">
+        <createTable tableName="cars">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="car_type" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="car_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="car_model" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="year_production" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_uuid" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamptz">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamptz"/>
+         </createTable>
+    </changeSet>
+
+    <changeSet id="add column vin_number to cars" author="kerzhakov">
+        <addColumn tableName="cars">
+            <column name="vin_number" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="add column fileIds" author="kerzhakov">
+        <addColumn tableName="cars">
+            <column name="file_ids" type="JSONB"/>
+        </addColumn>
+    </changeSet>
+    
+    <changeSet id="add columns loan capacity, body and loading type" author="kerzhakov">
+        <addColumn tableName="cars">
+            <column name="load_capacity" type="DECIMAL"/>
+            <column name="body_type" type="JSONB"/>
+            <column name="loading_type" type="JSONB"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="add photo analysis columns" author="codex">
+        <addColumn tableName="cars">
+            <column name="photo_analysis_summary" type="TEXT"/>
+            <column name="photo_analysis_status" type="VARCHAR(64)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="add booked column" author="codex">
+        <addColumn tableName="cars">
+            <column name="booked" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="add car route places" author="codex">
+        <addColumn tableName="cars">
+            <column name="departure_place" type="jsonb"/>
+            <column name="destination_place" type="jsonb"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="create car type dictionaries" author="codex">
+        <createTable tableName="body_type_dictionary">
+            <column name="code" type="VARCHAR(64)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="label" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sort_order" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="loading_type_dictionary">
+            <column name="code" type="VARCHAR(64)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="label" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sort_order" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="seed car type dictionaries" author="codex">
+        <sql><![CDATA[
+            INSERT INTO body_type_dictionary (code, label, sort_order, active) VALUES
+            ('AWNING', 'тентованный', 10, true),
+            ('CONTAINER', 'контейнер', 20, true),
+            ('VAN', 'фургон', 30, true),
+            ('ALL_METAL', 'цельнометал.', 40, true),
+            ('ISOTHERMAL', 'изотермический', 50, true),
+            ('REFRIGERATOR_MULTI_TEMP', 'реф. мультирежимный', 60, true),
+            ('REFRIGERATOR_WITH_PARTITION', 'реф. с перегородкой', 70, true),
+            ('REFRIGERATED_TRUCK', 'реф.-тушевоз', 80, true),
+            ('ON_BOARD', 'бортовой', 90, true),
+            ('OPEN_CONTAINER', 'открытый контейнер', 100, true),
+            ('PLATFORM_WITHOUT_SIDES', 'площадка без бортов', 110, true),
+            ('DUMP_TRUCK', 'самосвал', 120, true),
+            ('SCOW', 'шаланда', 130, true),
+            ('LOW_FRAME', 'низкорамный', 140, true),
+            ('LOW_PLATFORM', 'низкорам.платф.', 150, true),
+            ('TELESCOPIC', 'телескопический', 160, true),
+            ('TRAWL', 'трал', 170, true),
+            ('BULK', 'балковоз(негабарит)', 180, true),
+            ('BUS', 'автобус', 190, true),
+            ('AUTOTOWER', 'автовышка', 200, true),
+            ('AUTO_TRANSPORTER', 'автотранспортер', 210, true),
+            ('CONCRETE_TRUCK', 'бетоновоз', 220, true),
+            ('BITUMEN_TRUCK', 'битумовоз', 230, true),
+            ('FUEL_TRUCKER', 'бензовоз', 240, true),
+            ('ALL_TERRAIN', 'вездеход', 250, true),
+            ('GAS_CARRIER', 'газовоз', 260, true),
+            ('GRAIN_CARRIER', 'зерновоз', 270, true),
+            ('HORSE_CARRIER', 'коневоз', 280, true),
+            ('CONTAINER_CARRIER', 'контейнеровоз', 290, true),
+            ('FEED_TRUCK', 'кормовоз', 300, true),
+            ('CRANE', 'кран', 310, true),
+            ('TIMBER_CARRIER', 'лесовоз', 320, true),
+            ('SCARP_TRUCK', 'ломовоз', 330, true),
+            ('MANIPULATOR', 'манипулятор', 340, true),
+            ('MINIBUS', 'микроавтобус', 350, true),
+            ('FLOUR_TRUCK', 'муковоз', 360, true),
+            ('PANEL_TRUCK', 'панелевоз', 370, true),
+            ('PICKUP_TRUCK', 'пикап', 380, true),
+            ('DOWN_TRUCK', 'пухтовоз', 390, true),
+            ('PYRAMID', 'пирамида', 400, true),
+            ('ROLL_TRUCK', 'рулоновоз', 410, true),
+            ('TRACTOR_TRUCK', 'седельный тягач', 420, true),
+            ('CATTLE_TRUCK', 'скотовоз', 430, true),
+            ('GLASS_CARRIER', 'стекловоз', 440, true),
+            ('PIPE_CARRIER', 'трубовоз', 450, true),
+            ('CEMENT_TRUCK', 'цементовоз', 460, true),
+            ('TANKER_TRUCK', 'автоцистерна', 470, true),
+            ('WOODCHIPPER_TRUCK', 'щеповоз', 480, true),
+            ('TOW_TRUCK', 'эвакуатор', 490, true),
+            ('CARGO_PASSENGER', 'грузопассажирский', 500, true),
+            ('STICK_CARRIER', 'клюшковоз', 510, true),
+            ('GARBAGE_TRUCK', 'мусоровоз', 520, true),
+            ('JUMBO', 'jumbo', 530, true),
+            ('TANK_CONTAINER_20', '20'' танк-контейнер', 540, true),
+            ('TANK_CONTAINER_40', '40'' танк-контейнер', 550, true),
+            ('MEGA_TRUCK', 'мега фура', 560, true),
+            ('DOPPELGANGER', 'допельшток', 570, true),
+            ('SLIDING_SEMI_TRAILER', 'Раздвижной полуприцеп 20''/40''', 580, true)
+            ON CONFLICT (code) DO NOTHING;
+
+            INSERT INTO loading_type_dictionary (code, label, sort_order, active) VALUES
+            ('UPPER', 'верхняя', 10, true),
+            ('LATERAL', 'боковая', 20, true),
+            ('BACK', 'задняя', 30, true),
+            ('FULL_RASTERIZATION', 'с полной растентовкой', 40, true),
+            ('REMOVAL_CROSSBAR', 'со снятием поперечных перекладин', 50, true),
+            ('REMOVAL_RACKS', 'со снятием стоек', 60, true),
+            ('WITHOUT_GATE', 'без ворот', 70, true),
+            ('HYDROBOARD', 'гидроборт', 80, true),
+            ('RAMPS', 'аппарели', 90, true),
+            ('WITH_CRATE', 'с обрешеткой', 100, true),
+            ('WITH_SIDES', 'с бортами', 110, true),
+            ('SIDE_FROM_2_SIDES', 'боковая с 2-х сторон', 120, true),
+            ('FILLING', 'налив', 130, true),
+            ('ELECTRIC', 'электрический', 140, true),
+            ('HYDRAULIC', 'гидравлический', 150, true),
+            ('UNDEFINED', 'не указан', 160, true),
+            ('PNEUMATIC', 'пневматический', 170, true),
+            ('DIESEL_COMPRESSOR', 'дизельный компрессор', 180, true)
+            ON CONFLICT (code) DO NOTHING;
+        ]]></sql>
+    </changeSet>
+
+    <changeSet id="normalize car body and loading types" author="codex">
+        <createTable tableName="car_body_types">
+            <column name="car_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="body_type_code" type="VARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="car_loading_types">
+            <column name="car_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="loading_type_code" type="VARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <sql><![CDATA[
+            INSERT INTO car_body_types (car_id, body_type_code)
+            SELECT cars.id, COALESCE(dictionary.code, item.value)
+            FROM cars
+            CROSS JOIN LATERAL jsonb_array_elements_text(COALESCE(cars.body_type, '[]'::jsonb)) AS item(value)
+            LEFT JOIN body_type_dictionary dictionary
+                ON dictionary.code = item.value OR lower(dictionary.label) = lower(item.value)
+            WHERE item.value IS NOT NULL AND item.value <> '';
+
+            INSERT INTO car_loading_types (car_id, loading_type_code)
+            SELECT cars.id, COALESCE(dictionary.code, item.value)
+            FROM cars
+            CROSS JOIN LATERAL jsonb_array_elements_text(COALESCE(cars.loading_type, '[]'::jsonb)) AS item(value)
+            LEFT JOIN loading_type_dictionary dictionary
+                ON dictionary.code = item.value OR lower(dictionary.label) = lower(item.value)
+            WHERE item.value IS NOT NULL AND item.value <> '';
+        ]]></sql>
+
+        <addForeignKeyConstraint baseTableName="car_body_types"
+                                 baseColumnNames="car_id"
+                                 constraintName="car_body_types_car_id_fk"
+                                 referencedTableName="cars"
+                                 referencedColumnNames="id"
+                                 deleteCascade="true"/>
+        <addForeignKeyConstraint baseTableName="car_body_types"
+                                 baseColumnNames="body_type_code"
+                                 constraintName="car_body_types_body_type_code_fk"
+                                 referencedTableName="body_type_dictionary"
+                                 referencedColumnNames="code"/>
+        <addForeignKeyConstraint baseTableName="car_loading_types"
+                                 baseColumnNames="car_id"
+                                 constraintName="car_loading_types_car_id_fk"
+                                 referencedTableName="cars"
+                                 referencedColumnNames="id"
+                                 deleteCascade="true"/>
+        <addForeignKeyConstraint baseTableName="car_loading_types"
+                                 baseColumnNames="loading_type_code"
+                                 constraintName="car_loading_types_loading_type_code_fk"
+                                 referencedTableName="loading_type_dictionary"
+                                 referencedColumnNames="code"/>
+
+        <dropColumn tableName="cars" columnName="body_type"/>
+        <dropColumn tableName="cars" columnName="loading_type"/>
+    </changeSet>
+
+    <changeSet id="create gibdd info table" author="codex">
+        <createTable tableName="gibdd_info">
+            <column name="car_id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="owners_count" type="INTEGER"/>
+            <column name="accidents_count" type="INTEGER"/>
+            <column name="has_registration_restrictions" type="BOOLEAN"/>
+            <column name="is_wanted" type="BOOLEAN"/>
+            <column name="is_pledged" type="BOOLEAN"/>
+            <column name="last_check_at" type="TIMESTAMPTZ"/>
+            <column name="raw_response" type="JSONB" defaultValueComputed="'{}'::jsonb">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="gibdd_info"
+                                 baseColumnNames="car_id"
+                                 constraintName="gibdd_info_car_id_fk"
+                                 referencedTableName="cars"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+
+</databaseChangeLog>

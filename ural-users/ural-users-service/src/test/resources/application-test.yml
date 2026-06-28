@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: ural-users
+  datasource:
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        generate_statistics: false
+        show_sql: true
+        check_nullability: true
+        hbm2ddl:
+          auto: validate
+        default_schema: ural_users
+
+  liquibase:
+    enabled: true
+    liquibase-schema: public
+    database-change-log-table: ural_users_log
+    database-change-log-lock-table: ural_users_lock
+    change-log: classpath:db/changelog-master.xml
+    default-schema: ural_users
+
+auth:
+  url: http://localhost:10901/api/auth
+  path-registration: ${auth.url}/registration
+
+logging:
+  level:
+    root: info
+    org:
+      springframework: INFO
+      hibernate: INFO
+      apache:
+        tomcat:
+          util: WARN

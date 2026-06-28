@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+            http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="create schema ural_contracts" author="kerzhakov">
+        <sql>
+            CREATE SCHEMA IF NOT EXISTS ural_contracts
+        </sql>
+    </changeSet>
+
+    <changeSet id="create table contracts" author="kerzhakov">
+        <createTable tableName="contracts">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="car_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cargo_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="DECIMAL"/>
+            <column name="created_at" type="timestamptz">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamptz"/>
+         </createTable>
+    </changeSet>
+
+    <changeSet id="add new columns to contracts" author="kerzhakov">
+        <addColumn tableName="contracts">
+            <column name="owner_uuid" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="related_user_uuid" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="create table contract_checkpoints" author="kerzhakov">
+        <createTable tableName="contract_checkpoints">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="contract_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="point_index" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="jsonb">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="file_ids" type="jsonb" defaultValueComputed="'[]'::jsonb">
+                <constraints nullable="false"/>
+            </column>
+            <column name="comment" type="TEXT"/>
+            <column name="rejection_reason" type="TEXT"/>
+            <column name="arrived_at" type="timestamptz"/>
+            <column name="confirmed_at" type="timestamptz"/>
+            <column name="rejected_at" type="timestamptz"/>
+            <column name="created_at" type="timestamptz">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamptz"/>
+        </createTable>
+
+        <addUniqueConstraint
+                tableName="contract_checkpoints"
+                columnNames="contract_id, point_index"
+                constraintName="uk_contract_checkpoints_contract_id_point_index"/>
+    </changeSet>
+
+    <changeSet id="create table contract ratings" author="codex">
+        <createTable tableName="contract_ratings">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="contract_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rater_user_uuid" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rated_user_uuid" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rating" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="comment" type="TEXT"/>
+            <column name="created_at" type="timestamptz">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamptz"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="contract_ratings"
+                                 baseColumnNames="contract_id"
+                                 constraintName="fk_contract_ratings_contract_id"
+                                 referencedTableName="contracts"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+        <addUniqueConstraint tableName="contract_ratings"
+                             columnNames="contract_id, rater_user_uuid"
+                             constraintName="uk_contract_ratings_contract_rater"/>
+    </changeSet>
+
+    <changeSet id="drop contract checkpoints" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="contract_checkpoints"/>
+        </preConditions>
+        <dropTable tableName="contract_checkpoints"/>
+    </changeSet>
+
+    <changeSet id="create table routes" author="codex">
+        <createTable tableName="routes">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="contract_id" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="points" type="jsonb" defaultValueComputed="'[]'::jsonb">
+                <constraints nullable="false"/>
+            </column>
+            <column name="distance_meters" type="DECIMAL"/>
+            <column name="time_ms" type="BIGINT"/>
+            <column name="created_at" type="timestamptz">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamptz"/>
+            <column name="raw_response" type="jsonb" defaultValueComputed="'{}'::jsonb">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="routes"
+                                 baseColumnNames="contract_id"
+                                 constraintName="fk_routes_contract_id"
+                                 referencedTableName="contracts"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="drop contract rating comments" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="contract_ratings" columnName="comment"/>
+        </preConditions>
+        <dropColumn tableName="contract_ratings" columnName="comment"/>
+    </changeSet>
+
+    <changeSet id="add contract price negotiation fields" author="codex">
+        <addColumn tableName="contracts">
+            <column name="price_requested_by_uuid" type="TEXT"/>
+            <column name="price_updated_at" type="timestamptz"/>
+        </addColumn>
+        <sql>
+            UPDATE contracts
+            SET price_requested_by_uuid = owner_uuid,
+                price_updated_at = COALESCE(updated_at, created_at)
+            WHERE price_requested_by_uuid IS NULL
+        </sql>
+        <addNotNullConstraint tableName="contracts"
+                              columnName="price_requested_by_uuid"
+                              columnDataType="TEXT"/>
+    </changeSet>
+
+</databaseChangeLog>

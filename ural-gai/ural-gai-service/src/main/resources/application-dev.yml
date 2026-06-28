@@ -1,0 +1,30 @@
+server:
+  port: 10908
+
+spring:
+  application:
+    name: ural-gai
+    version: @project.version@
+
+mocks:
+  wanted:
+    good-vins:
+      - "WWWWWW"
+      - "VVVVVV"
+  accident:
+    good-vins:
+      - "WWWWWW"
+      - "VVVVVV"
+  inspection:
+    good-vins:
+      - "WWWWWW"
+      - "VVVVVV"
+
+logging:
+  level:
+    root: info
+    org:
+      springframework: INFO
+      apache:
+        tomcat:
+          util: WARN

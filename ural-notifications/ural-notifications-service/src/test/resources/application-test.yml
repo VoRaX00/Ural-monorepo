@@ -1,0 +1,58 @@
+spring:
+  application:
+    name: ural-notifications
+  datasource:
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        generate_statistics: false
+        show_sql: true
+        check_nullability: true
+        hbm2ddl:
+          auto: validate
+        default_schema: ural_notifications
+
+  liquibase:
+    enabled: true
+    liquibase-schema: public
+    database-change-log-table: ural_notifications_log
+    database-change-log-lock-table: ural_notifications_lock
+    change-log: classpath:db/changelog-master.xml
+    default-schema: ural_notifications
+
+  kafka:
+    bootstrap-servers: localhost:11009
+  mail:
+    host: localhost
+    port: 1025
+    username: no-reply@ural.local
+    password:
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+kafka:
+  group-id: 1
+  notification-email-topic:
+    name: ural-notifications-topic
+    partitions: 1
+    replicationFactor: 1
+  notification-contract-topic:
+    name: ural-contract-topic
+    partitions: 1
+    replicationFactor: 1
+
+logging:
+  level:
+    root: info
+    org:
+      springframework: INFO
+      hibernate: INFO
+      apache:
+        tomcat:
+          util: WARN

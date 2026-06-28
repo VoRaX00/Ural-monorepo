@@ -1,0 +1,62 @@
+server:
+  port: 10904
+
+spring:
+  application:
+    name: ural-cars
+    version: @project.version@
+  datasource:
+    url: jdbc:postgresql://localhost:10900/ural
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:11009}
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP_ID:ural-cars}
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: ru.ural.ai.events
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        max.block.ms: ${KAFKA_PRODUCER_MAX_BLOCK_MS:1000}
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        generate_statistics: false
+        show_sql: true
+        check_nullability: true
+        hbm2ddl:
+          auto: validate
+        default_schema: ural_cars
+
+  liquibase:
+    enabled: true
+    liquibase-schema: public
+    database-change-log-table: ural_cars_log
+    database-change-log-lock-table: ural_cars_lock
+    change-log: classpath:db/changelog-master.xml
+    default-schema: ural_cars
+
+logging:
+  level:
+    root: info
+    org:
+      springframework: INFO
+      hibernate: INFO
+      apache:
+        tomcat:
+          util: WARN
+
+app:
+  autocode:
+    base-url: ${AUTOCODE_BASE_URL:http://localhost:10908/api}
+  kafka:
+    car-photo-analysis:
+      request-topic: ${CAR_PHOTO_ANALYSIS_REQUEST_TOPIC:ural-ai.car-photo-analysis.requested}
+      result-topic: ${CAR_PHOTO_ANALYSIS_RESULT_TOPIC:ural-ai.car-photo-analysis.completed}

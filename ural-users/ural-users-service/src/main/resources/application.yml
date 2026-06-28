@@ -1,0 +1,53 @@
+server:
+  port: ${SERVER_PORT}
+
+spring:
+  application:
+    name: ural-users
+    version: @project.version@
+  datasource:
+    url: ${DB_URL}/${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASS}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        generate_statistics: false
+        show_sql: ${SHOW_SQL}
+        check_nullability: true
+        hbm2ddl:
+          auto: validate
+
+  liquibase:
+    enabled: true
+    liquibase-schema: public
+    database-change-log-table: ural_users_log
+    database-change-log-lock-table: ural_users_lock
+    change-log: classpath:db/changelog-master.xml
+    default-schema: ural_users
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP_ID:ural-users}
+      auto-offset-reset: earliest
+
+auth:
+  url: ${AUTH_URL}
+  path-registration: ${auth.url}/registration
+
+kafka:
+  user-rating-topic:
+    name: ${USER_RATING_TOPIC_NAME:ural-user-rating-topic}
+    partitions: ${USER_RATING_TOPIC_PARTITIONS:1}
+
+logging:
+  level:
+    root: ${LOGGING_LEVEL_ROOT}
+    org:
+      springframework: INFO
+      hibernate: INFO
+      apache:
+        tomcat:
+          util: WARN
